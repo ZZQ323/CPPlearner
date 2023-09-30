@@ -15,7 +15,7 @@ namespace ZZQ323 {
         Node* next;
 
         Node(int a=0,int b=0)
-                :val(a),power(b){next = nullptr;}
+            :val(a),power(b){next = nullptr;}
 
         Node(const Node& var)
         {
