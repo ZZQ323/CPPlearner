@@ -9,11 +9,6 @@ namespace ZZQ323 {
 
     struct Node
     {
-        int val;
-        int power;
-        int data;
-        Node* next;
-
         Node(int a=0,int b=0)
             :val(a),power(b){next = nullptr;}
 
@@ -23,9 +18,14 @@ namespace ZZQ323 {
             power=var.power;
             next=nullptr;
         }
+
+        int val;
+        int power;
+        int data;
+        Node* next;
     };
 
-    class forward_list
+    struct forward_list
     {
 
         // 构造函数

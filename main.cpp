@@ -1,18 +1,23 @@
 #include <iostream>
-#include "include/forward_list.hpp"
+#include <forward_list>
+//#include "include/forward_list.hpp"
 
 using std::cin;
 using std::cout;
-using ZZQ323::forward_list;
+using std::forward_list;
+//using ZZQ323::forward_list;
 
 int main()
 {
     std::cout << "Hello, World!" << std::endl;
-    forward_list var;
-    int n;cin>>>n;
+    forward_list<int> var;
+    int n;cin>>n;
     for(int i=1;i<=n;++i){
-        int x;cin>>x;var.push_back(var);
+        int x;
+        cin>>x;
+        var.push_front(x);
     }
+
 
 
 
