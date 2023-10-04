@@ -1,188 +1,279 @@
-#include <iostream>
-#include <stdexcept>
-#include <list>
-#include <algorithm>
+#include<iostream>
+#include<list>
 
-using namespace std;
+namespace ZZQ323{
+    struct Node{
+        int _val_;
+        Node* _next_;
+        Node* _pre_;
 
-struct Node {
-    int data;
-    Node* next;
+        Node(int d=0)
+        :_val_(d),_next_(nullptr),_pre_(nullptr){;}
 
-    Node(int d = 0) 
-    : data(d), next(nullptr) {}
-    Node(const Node& var) 
-    : data(var.data), next(nullptr) {}
-};
-
-std::list<int> sl;
-
-struct Iterator{
-    Node* head;
-    Node* last_one;
-    Node* current;
-
-    Iterator(Node* node,Node*hd,Node* le=nullptr) 
-    : current(node),head(hd),last_one(le){;}
-
-    int& operator*() {
-        return current->data;
-    }
-    
-    Iterator operator++(int) {
-        Iterator temp(*this);
-        last_one=current;
-        current = current->next;
-        if( current==head ){
-            last_one=current;
-            current = current->next;
+        bool operator<(const Node& var)const {
+            return _val_<var._val_;
         }
-        return temp;
-    }
+    };
 
-    Iterator& operator++() {
-        last_one=current;
-        current = current->next;
-        if( current==head ){
-            last_one=current;
-            current = current->next;
-        }
-        return *this;
-    }
-    
-    Iterator& operator+(int id) {
-        while(id--){
-            last_one=current;
-            current = current->next;
-            if( current==head ){
-                last_one=current;
-                current = current->next;
-            }
-        }
-        return *this;
-    }
+    struct list{
 
-    bool operator!=(const Iterator& other) const {
-        return current != other.current;
-    }
+        static size_t _len_;
 
-    bool operator==(const Iterator& other) const {
-        return current == other.current;
-    }
-};
+        size_t size()
+        {return _len_;}
 
-struct Ciclist{
+        Node* rear;
 
-    Node* head;
-    Node* rear;
-    int len;
-
-    Ciclist();
-    ~Ciclist();
-    
-    Iterator begin();
-    Iterator end();
-
-    void push_back(int d);
-    void del(Iterator pre);
-    Node& operator[](int id);
-    Iterator find(Node var);
-    
-};
-
-Ciclist::Ciclist() 
-: head(new Node()), len(0), rear(nullptr) {}
-
-Ciclist::~Ciclist() {
-    Node* pre = nullptr;
-    Node* now = head;
-
-    if( len==0 )
-        head->next=rear=nullptr;
-    while (now != head) {
-        pre = now;
-        now = now->next;
-        delete pre;
-    }
-}
-
-void Ciclist::push_back(int d) {
-    if (rear == nullptr) {
-        rear = head->next = new Node(d);
-    } else {
-        rear = rear->next = new Node(d);
-    }
-    rear->next = head;
-    ++len;
-}
-
-void Ciclist::del(Iterator var) {
-    Node* pre = var.last_one;
-    if( pre==nullptr || len==1){
-        delete var.current;
-        head->next=rear=nullptr;
-    }else{
-        Node* now = var.current;
-        pre->next = now->next;
-        delete now;
-    }
-    --len;
-}
-
-Node& Ciclist::operator[](int id) {
-    if (id < 0 || id >= len) {
-        throw runtime_error("operator[" + to_string(id) + "] outline");
-    }
-
-    Node* now = head->next;
-    while (id > 0) {
-        now = now->next;
-        --id;
-    }
-
-    return *now;
-}
-
-Iterator Ciclist::find(Node var) {
-    Node* now = head;
-    while (now->next != head && now->next->data != var.data) {
-        now = now->next;
-    }
-    return {now,head};
-}
-
-Iterator Ciclist::begin() {
-    return Iterator(head->next,head);
-}
-
-Iterator Ciclist::end() {
-    return Iterator(head,rear);
-}
-
-
-int main(int argc, char** argv)
-{
-    int T;
-    scanf("%d", &T);
-    while (T--) {
-        int n, k, s;
-        scanf("%d%d%d", &n, &k, &s);
-        Ciclist var;
+        void _init_(int cnt,int val);
         
-        for (int i = 1; i <= n; ++i) var.push_back(i);
+        list(int cnt=0,int val=0)
+        {_init_(cnt,val);}
 
-        Iterator it = var.begin();
-        int cnt = s - 1;
-        while (cnt--) ++it;
-        while ( var.len ) {
-            cnt = k - 1;
-            while (cnt--)++it;
-            cout << *it << ' ';
-            var.del(it++);
+        list(const list& var);
+
+        ~list();
+
+        struct iterator{
+            Node* cur;
+            Node* tail;
+            explicit iterator(Node*cc,Node* tl)
+            :cur(cc),tail(tl){;}
+
+            operator Node*()
+            {return cur;}
+
+            iterator(const iterator & var)=default;
+
+            void _add_()
+            {cur=cur->_next_;if(cur==tail)cur=cur->_next_;}
+
+            void _minus_()
+            {cur=cur->_pre_;if(cur==tail)cur=cur->_pre_;}
+
+            typedef void(*mov)(void);
+
+            iterator& operator++()
+            {_add_();return *this;}
+
+            iterator& operator+=(int id)
+            {while(id--)_add_();return *this;}
+
+            iterator operator++(int)
+            {
+                iterator tp(*this);
+                _add_();
+                return tp;
+            }
+
+            iterator operator+(int id)
+            {
+                while(id--)_add_();
+                iterator tp(*this);
+                return tp;
+            }
+
+            iterator& operator--()
+            {_minus_();return *this;}
+
+            iterator& operator-=(int id)
+            {while(id--)_minus_();return *this;}
+
+            iterator operator--(int)
+            {
+                iterator tp(*this);
+                _minus_();
+                return tp;
+            }
+
+            iterator operator-(int id)
+            {
+                while(id--)_minus_();
+                iterator tp(*this);
+                return tp;
+            }
+            
+            int& operator*()
+            {return cur->_val_;}
+        };
+
+        iterator begin()
+        {return iterator(rear->_next_,rear);}
+        iterator end()
+        {return iterator(rear->_next_,rear);}
+
+        iterator erase(iterator id);
+        iterator insert(iterator id,Node val);
+
+        void push_front(Node var);
+        void push_back(Node var);
+        void pop_front();
+        void pop_back();
+
+        void merge( list& var);
+        void sort();
+
+        void clear();
+        void remove(Node tar);
+
+        void remove_if();
+        void splice();
+    };
+    size_t list::_len_=0;
+
+    void list::_init_(int cnt,int val)
+    {
+        rear=new Node();
+        Node* now = rear;
+        while(cnt--){
+            now->_next_=new Node(val);
+            now->_next_->_pre_=now;
+            now=now->_next_;
         }
-        cout << '\n';
+        now->_next_=rear;
+        rear->_pre_=now;
     }
+
+    list::~list()
+    {
+        if(_len_==0){
+            delete rear;
+            return ;
+        }
+        rear->_pre_->_next_=nullptr;
+        Node*pre=nullptr;
+        Node*now=rear;
+        while(now!=nullptr){
+            pre=now;
+            delete pre;
+            now=now->_next_;
+            --_len_;
+        }
+        // if(_len_+1)
+            // throw std::logic_error("ZZQ323::list : heap memory unclean");
+    }
+
+    void list::push_front(Node var)
+    {
+        Node* nx=new Node(var);
+        nx->_next_=rear->_next_;
+        nx->_pre_=rear;
+        nx->_next_->_pre_=nx;
+        nx->_pre_->_next_=nx;
+        ++_len_;
+    }
+
+    void list::push_back(Node var)
+    {
+        Node*nx=new Node(var);
+        nx->_next_=rear;
+        nx->_pre_=rear->_pre_;
+        nx->_next_->_pre_=nx;
+        nx->_pre_->_next_=nx;
+        ++_len_;
+    }
+
+    void list::pop_back()
+    {
+        Node*tp=rear->_pre_;
+        if(tp==nullptr)
+            throw std::range_error("ZZQ323::list is empty but popping\
+                    still requested");
+        tp->_next_->_pre_=tp->_pre_;
+        tp->_pre_->_next_=tp->_next_;
+        delete tp;
+        --_len_;
+    }
+
+    void list::pop_front()
+    {
+        Node*tp=rear->_next_;
+        if(tp==nullptr)
+            throw std::range_error("ZZQ323::list is empty but popping\
+                    still requested");
+        tp->_next_->_pre_=tp->_pre_;
+        tp->_pre_->_next_=tp->_next_;
+        delete tp;
+        --_len_;
+    }
+    
+    list::iterator list::erase(iterator id)
+    {
+        Node& tp=*id.cur;
+        Node*ret=id.cur->_next_;
+        tp._next_->_pre_=tp._pre_;
+        tp._pre_->_next_=tp._next_;
+        delete id.cur;
+        --_len_;
+        return list::iterator(ret,rear);
+    }
+
+    list::iterator list::insert(iterator id,Node val)
+    {
+        Node* now=id.cur;
+        Node* nx=new Node(val);
+        nx->_pre_=now;
+        nx->_next_=now->_next_;
+        nx->_next_->_pre_=nx;
+        nx->_pre_->_next_=nx;
+        ++_len_;
+        return list::iterator(now,rear);
+    }
+
+    void list::merge(list& var)
+    {
+        Node* hd=var.end();
+        hd->_next_->_pre_=rear->_pre_;
+        hd->_pre_->_next_=rear;
+        hd->_next_->_pre_->_next_=hd->_next_;
+        hd->_pre_->_next_->_pre_=hd->_pre_;
+        delete hd;
+    }
+
+    void list::remove(Node tar)
+    {
+        Node*now=rear->_next_;
+        while( now!=rear ){
+            if(now->_val_==tar._val_){
+                now=erase(iterator(now,rear));
+            }
+            now=now->_next_;
+        }
+    }
+
+    void list::clear()
+    {
+        while(_len_){
+            pop_back();
+        }
+    }
+
+
+};
+
+using std::cin;
+using std::cout;
+
+
+int main(int argc,char**argv)
+{
+    ZZQ323::list var;
+
+    int T;cin>>T;
+    while(T--){
+        int n,k,s;
+        cin>>n>>k>>s;
+        for(int i=1;i<=n;++i)
+            var.push_back(i);
+        ZZQ323::list::iterator it=var.begin();
+        for(int i=s-1;n=var.size();i+=k-1){
+            int j=(i+k-1)%n;
+            std::advance(it,j-i);
+            cout<<*it<<' ';
+            it=var.erase(it);
+        }
+        cout<<std::endl;
+    }
+
     return 0;
 }
-
 
