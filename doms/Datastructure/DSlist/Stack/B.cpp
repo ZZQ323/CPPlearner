@@ -14,23 +14,16 @@ namespace ZZQ323{
             return _val_<var._val_;
         }
     };
-
     struct list{
-
         static size_t _len_;
-
         size_t size()
         {return _len_;}
 
         Node* rear;
-
         void _init_(int cnt,int val);
-        
         list(int cnt=0,int val=0)
         {_init_(cnt,val);}
-
         list(const list& var);
-
         ~list();
 
         struct iterator{
@@ -96,11 +89,12 @@ namespace ZZQ323{
             {return cur->_val_;}
         };
 
+        
+
         iterator begin()
         {return iterator(rear->_next_,rear);}
         iterator end()
         {return iterator(rear->_next_,rear);}
-
         iterator erase(iterator id);
         iterator insert(iterator id,Node val);
 
@@ -108,17 +102,26 @@ namespace ZZQ323{
         void push_back(Node var);
         void pop_front();
         void pop_back();
-
         void merge( list& var);
         void sort();
-
         void clear();
         void remove(Node tar);
-
         void remove_if();
         void splice();
     };
     size_t list::_len_=0;
+
+    list::iterator advance(list::iterator &it,int step)
+    {
+        if(step>0){
+            while(step--)
+                it._add_();
+        }else if(step<0){
+            while(step++)
+                it._minus_();
+        }
+        return it;
+    }
 
     void list::_init_(int cnt,int val)
     {
@@ -247,7 +250,18 @@ namespace ZZQ323{
         }
     }
 
+    void list::remove(Node v)
+    {
+        iterator it=begin();
+        while(it!=end()){
+            it=erase(it);
+            ++it;
+        }
+    }
 
+    void list::remove_if(){
+        
+    }
 };
 
 using std::cin;
@@ -257,6 +271,7 @@ using std::cout;
 int main(int argc,char**argv)
 {
     ZZQ323::list var;
+    std::list<int>::iterator it;
 
     int T;cin>>T;
     while(T--){
@@ -267,7 +282,7 @@ int main(int argc,char**argv)
         ZZQ323::list::iterator it=var.begin();
         for(int i=s-1;n=var.size();i+=k-1){
             int j=(i+k-1)%n;
-            std::advance(it,j-i);
+            ZZQ323::advance(it,j-i);
             cout<<*it<<' ';
             it=var.erase(it);
         }

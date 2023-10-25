@@ -1,31 +1,49 @@
-#include <bits/stdc++.h>
+#include <iostream>
 
 using namespace std;
 
-template <typename T>
-concept container_compatible_range = requires(T t) {
-    // 检查 T 是否是一个容器范围
-    typename T::value_type;      // 存储的元素类型
-    typename T::iterator;        // 迭代器类型
-    typename T::const_iterator;  // 常量迭代器类型
-    { t.begin() } -> typename T::iterator;             // 返回迭代器的 begin() 函数
-    { t.end() } -> typename T::iterator;               // 返回迭代器的 end() 函数
-    { t.cbegin() } -> typename T::const_iterator;       // 返回常量迭代器的 cbegin() 函数
-    { t.cend() } -> typename T::const_iterator;         // 返回常量迭代器的 cend() 函数
-};
-
-template <container_compatible_range<T>R>
-void assign_range(R&& rg) {
-    // 实现赋值操作
-    // ...
-}
-
-int main()
+int main(int argc, char **argv)
 {
-    std::vector<int> source = {1, 2, 3, 4, 5};
-    std::vector<int> target;
+    int x, y;
+    // printf("%#X\n",((-1)>>24));
+    // printf("%d\n",((-1)>>24)<<1>>1);
+    // for(int i=0;i<32;++i){
+    //     printf("%d::%#X\n",i,(~0)>>i);
+    // }
 
-    assign_range(source);  // 将 source 中的元素赋值给 target
+    // printf("%d\n",-1<<1);
+    // printf("%d\n",(-1)<<1>>);
+
+    // printf("%#X\n",INT_MIN>>31);
+    // printf("%#X\n",INT_MAX>>31);
+    // printf("%#X\n",1<<31);
+    // printf("%#X\n",~(1<<31));
+    // printf("%d\n",1<<31);
+    // printf("%d\n",2147483648);
+    // printf("%d\n",2147483648==-2147483648);
+    // printf("%#X\n", true);
+    // printf("%#X\n", false);
+    // printf("%#X\n",2147483647/2+2147483648/2);
+    // printf("%d\n",2147483647/2+2147483648/2);
+
+    auto half=[](int n)->int {return (n&(~(1<<30)));};
+    auto minus=[](int a,int b)->int {return (a+( (~b) + 1 ));};
+
+    printf("%d\n",-2147483647/2==half(-2147483647));
+    // printf("%d\n",3-4==minus(3,4));
+
+    while (~scanf("%d%d", &x, &y))
+    {
+        // printf("x:%d y:%d\n",x,y);
+        // 2147483648,10000000000000 :: x-> 2147483647
+        printf("%d\n", (!(!((x >> 31) & 1) & (y >> 31)) & !((x >> 30) & !((y >> 30) & 1))) & !(( ((y&(~(1<<30))) + (~((x&(~(1<<30)))+ 1)) )>>31)&1) );
+
+        // (!(!((x>>31)&1) & (y>>31) ) & !( (x>>30) & !((y>>30)&1) )) | (( !(((y+(~x)+1)>>31)&1) ) >> (( (x>>30) & !((y>>30)&1) ) )) ;
+        printf("::%d\n",!(!((x>>31)&1) & (y>>31) ) );
+        printf("::%d\n",!( (x>>30) & !((y>>30)&1) ) );
+        printf("::%d\n",!(( ((y&(~(1<<30))) + (~( (x&(~(1<<30))))) + 1 )>>31) &1) );
+    }
 
     return 0;
 }
+// 2147483648
