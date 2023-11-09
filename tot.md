@@ -1,6 +1,6 @@
 ## 整合性网站
 [CS自学指南](https://github.com/PKUFlyingPig/cs-self-learning) 
-****
+
 [上海交通大学生存手册](https://survivesjtu.gitbook.io/survivesjtumanual/)
 
 [上海交通大学飞跃手册](https://github.com/SurviveSJTU/SJTU-Application)

@@ -1,4 +1,0 @@
-C:/Users/19169/CLionProjects/usr/cmake-build-debug/CMakeFiles/MyList.dir
-C:/Users/19169/CLionProjects/usr/cmake-build-debug/CMakeFiles/usr.dir
-C:/Users/19169/CLionProjects/usr/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/19169/CLionProjects/usr/cmake-build-debug/CMakeFiles/rebuild_cache.dir
