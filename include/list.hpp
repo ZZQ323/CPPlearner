@@ -1,64 +1,90 @@
-//
-// Created by 19169 on 2023/9/30.
-//
+#include <cstddef>
+
 
 #ifndef USR_LIST_HPP
 #define USR_LIST_HPP
 
 namespace ZZQ323 {
 
-    struct Node{
-        int   data;
-        Node* next;
-        Node* pre;
-        
-        Node(int d=0)
-        :data(d),next(nullptr),pre(nullptr){}
+    
 
-        Node(const Node& var)
-        :data(var.data),next(nullptr),pre(nullptr){;}
+// 双向链表节点
+template <typename T>
+struct ListNode {
+    T data;
+    ListNode* prev;
+    ListNode* next;
 
-        void shallow_copy(const Node& var)
-        {data=var.data;}
+    ListNode(const T& value) : data(value), prev(nullptr), next(nullptr) {}
+};
 
-    };
+template <typename T, typename Allocator = std::allocator<T>>
+class List {
+private:
+    using NodeAllocator = typename 
+    std::allocator_traits<Allocator>::template rebind_alloc<ListNode<T>>;
 
+public:
+    // 构造函数、析构函数等...
 
-    struct Circulist{
-        
-        Node* rear;
-        size_t len;
+    // 插入元素到链表末尾
+    void push_back(const T& value) {
+        ListNode<T>* newNode = allocateNode(value);
+        if (empty()) {
+            head = tail = newNode;
+        } else {
+            newNode->prev = tail;
+            tail->next = newNode;
+            tail = newNode;
+        }
+        ++size_;
+    }
 
-        Circulist();
-        Circulist(const Circulist&var);
-        ~Circulist();
-        Circulist& operator=(const Circulist&var);
+    // 从链表末尾移除元素
+    void pop_back() {
+        if (!empty()) {
+            ListNode<T>* lastNode = tail;
+            tail = tail->prev;
+            deallocateNode(lastNode);
+            --size_;
+        }
+    }
 
-        size_t size(){return len;}
-        
-        int push_back(Node var);
-        int push_front(Node var);
-        int pop_back();
-        int pop_front();
+    // 获取链表大小
+    std::size_t size() const {
+        return size_;
+    }
 
-        //循环链表合并
-        void merge(const Circulist& var);
-        // 访问
-        Node& operator[](int index);
+    // 检查链表是否为空
+    bool empty() const {
+        return size_ == 0;
+    }
 
+private:
+    ListNode<T>* head;   // 链表头
+    ListNode<T>* tail;   // 链表尾
+    std::size_t size_;   // 链表大小
+    NodeAllocator nodeAllocator;  // 节点内存分配器
 
-        struct iterator;
-        iterator begin();
-        iterator end();
+    // 分配节点内存
+    ListNode<T>* allocateNode(const T& value) {
+        ListNode<T>* newNode = nodeAllocator.allocate(1);
+        try {
+            std::allocator_traits<NodeAllocator>::construct(nodeAllocator, newNode, value);
+        } catch (...) {
+            nodeAllocator.deallocate(newNode, 1);
+            throw;
+        }
+        return newNode;
+    }
 
+    // 释放节点内存
+    void deallocateNode(ListNode<T>* node) {
+        std::allocator_traits<NodeAllocator>::destroy(nodeAllocator, node);
+        nodeAllocator.deallocate(node, 1);
+    }
+};
 
-        int insert(int indx,Node var);
-        int earse(int indx);
-        int insert(iterator indx,Node var);
-        int earse(iterator indx);
-        
-        iterator find(iterator __begin,iterator __end,Node _tar);
-    };
 
     
 

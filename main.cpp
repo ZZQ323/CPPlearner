@@ -1,210 +1,168 @@
 #include<iostream>
-#include<algorithm>
-#include<cstring>
+#include<set>
+#include<functional>
 
 using namespace std;
 
-const int N=110;
-int M[N][N];
+const int N=1e5+100;
 
-int n,m;
-bool flag;
+#define lson(x) (seg[x].left)
+#define rson(x) (seg[x].right)
 
-void print();
-
-void UP(int x,int y)
-{  
-    auto clean=[](int col)-> void {
-        int l=1,r=1;
-        while(true){
-            while(r<=n && M[r][col])++r;
-            l=r;
-            while(l<=n && !M[l][col])++l;
-            if(l==n+1 || r==n+1)break;
-            swap(M[l][col],M[r][col]);
-        }
-    };
-
-    for(int i=1;i<=n;++i){
-        clean(i);
-        for(int j=1;j<n;++j){
-            if(M[j][i]==M[j+1][i]){
-                M[j][i]+=M[j+1][i];
-                M[j+1][i]=0;
-                if(M[j][i]==2048){
-                    flag=1;
-                }
-            }
-        }
-        clean(i);
-    }
-
-    if(!M[x][y])
-        M[x][y]=2;
-    
+template<class _Key,class _Compare,class _Alloc>
+set<_Key,_Compare,_Alloc>
+        operator+( set<_Key,_Compare,_Alloc>one,
+                set<_Key,_Compare,_Alloc>other ){
+    one.insert(other.begin(),other.end());
+    return one;
 }
 
-void DOWN(int x,int y)
+struct Segment
 {
-    auto clean=[](int col)-> void {
-        int l=n,r=n;
-        while(true){
-            while(r && M[r][col])--r;
-            l=r;
-            while(l && !M[l][col])--l;
-            if( !l ||  !r)break;
-            swap(M[l][col],M[r][col]);
-        }
-    };
+    struct Node
+    {
+        int left=-1,right=-1;
+        set<int> info;
+        bool tag=false;
 
-    for(int i=1;i<=n;++i){
-        clean(i);
-        for(int j=n-1;j;--j){
-            if(M[j+1][i]==M[j][i]){
-                M[j+1][i]+=M[j][i];
-                M[j][i]=0;
-                if(M[j+1][i]==2048){
-                    flag=1;
-                }
-            }
+        void 
+        init(int val=0)
+        {
+            left=right=-1;
+            info.insert(val);
         }
-        clean(i);
+
+    }seg[N<<2];
+    int root=-1;
+    int tp=0;
+
+    inline 
+    void 
+    update(int k)
+    {seg[k].info=seg[lson(k)].info+seg[rson(k)].info;}
+
+    void set_tag(int k)
+    {seg[k].tag=1;}
+
+    void push_down(int k){
+        ;
     }
 
-    if(!M[x][y])
-        M[x][y]=2;
-}
+    void 
+    insert(int& k,int l,int r,int pos,int w)
+    {
+        if(k==-1)
+            k=++tp;
+        if(l==r && l==pos)
+            seg[k].init(w);
+        else
+        {
+            int mid = l + r >> 1;
+            push_down(k);
+            if (pos <= mid)
+                insert(seg[k].left, l, mid, pos, w);
+            if (pos >= mid + 1)
+                insert(seg[k].right, mid + 1, r, pos, w);
+            update(k);
+        }
+    }
 
-void LEFT(int x,int y)
+    void
+    modify(int& k,int l,int r,int ql,int qr,int w)
+    {
+        if(k==-1)
+            k=++tp;
+        if(qr==r && ql==l)
+            seg[k].init(w);
+        else
+        {
+            int mid = l + r >> 1;
+            push_down(k);
+            if (qr <= mid)
+                modify(seg[k].left, l, mid, ql,qr, w);
+            else if (ql >= mid + 1)
+                modify(seg[k].right, mid + 1, r, ql,qr, w);
+            else
+                modify(seg[k].left, l, mid, ql,mid, w),
+                        modify(seg[k].right, mid + 1, r, mid+1,qr, w);
+            update(k);
+        }
+    }
+
+    void remove(int&k,int l,int r,int pos)
+    {
+        int mid=l+r>>1;
+        if( l<r ){
+            if(k==-1)return;
+            if(pos<mid)remove(seg[k].left,l,mid,pos);
+            else remove(seg[k].right,mid+1,r,pos);
+        }else if(l==r){
+            seg[k].init();
+            k=-1;
+        }
+    }
+
+    set<int>
+    check(int k,int l,int r,int pos)
+    {
+        if(k==-1)return {0};
+        if(l==r && l==pos){
+            return seg[k].info;
+        }else{
+            int mid=l+r>>1;
+            if(pos<=mid)
+                return check(seg[k].left,l,mid,pos);
+            if(pos>mid)
+                return check(seg[k].right,mid+1,r,pos);   
+        }
+    }
+
+    set<int>
+    query(int k,int l,int r,int ql,int qr)
+    {
+        if(k==-1)return {0};
+        if(ql==l && qr==r){
+            return seg[k].info;
+        }else{
+            int mid=l+r>>1;
+            if(qr<=mid)
+                return query(seg[k].left,l,mid,ql,qr);
+            else if(ql>mid)
+                return query(seg[k].right,mid+1,r,ql,qr);
+            else
+                return query(seg[k].left,l,mid,ql,mid)
+                    +query(seg[k].right,mid+1,r,mid+1,qr);
+        }
+    }
+
+    void clear()
+    {root=-1,tp=0;}
+
+    size_t size(){return tp;}
+}tr;
+
+int a[N];
+
+
+int main(void)
 {
-    auto clean=[](int row)-> void {
-        int l=1,r=1;
-        while(true){
-            while(r<=n && M[row][r])++r;
-            l=r;
-            while(l<=n && !M[row][l])++l;
-            if( l==n+1 ||  r==n+1)break;
-            swap(M[row][l],M[row][r]);
-        }
-    };
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
 
+    int n;
+    cin>>n;
     for(int i=1;i<=n;++i){
-        clean(i);
-        for(int j=1;j<n;++j){
-            if(M[i][j]==M[i][j+1]){
-                M[i][j]+=M[i][j+1];
-                M[i][j+1]=0;
-                if( M[i][j]==2048 ){
-                    flag=1;
-                }
-            }
-        }
-        clean(i);
+        cin>>a[i];
+        tr.insert(tr.root,1,n,i,a[i]);
     }
 
-    if(!M[x][y])
-        M[x][y]=2;
-}
-
-void RIGHT(int x,int y)
-{
-    auto clean=[](int row)-> void {
-        int l=n,r=n;
-        while(true){
-            while(r && M[row][r])--r;
-            l=r;
-            while(l && !M[row][l])--l;
-            if( !l || !r)break;
-            swap(M[row][l],M[row][r]);
-        }
-    };
-
-    for(int i=1;i<=n;++i){
-        clean(i);
-        for(int j=n-1;j;--j){
-            if(M[i][j+1]==M[i][j]){
-                M[i][j+1]+=M[i][j];
-                M[i][j]=0;
-                if(M[i][j+1]==2048){
-                    flag=1;
-                }
-            }
-        }
-        clean(i);
+    int m;
+    cin>>m;
+    for(int i=1;i<=m;++i){
+        int l,r;
+        cin>>l>>r;
+        cout<<tr.query(tr.root,1,n,l,r).size()<<'\n';
     }
-
-    if(!M[x][y])
-        M[x][y]=2;
-}
-
-void print()
-{
-    for(int i=1;i<=n;++i){
-        for(int j=1;j<=n;++j){
-            printf(" %d"+(j==1),M[i][j]);
-        }
-        printf("\n");
-    }
-}
-
-int main(int argc, char const *argv[])
-{
-    scanf("%d%d",&n,&m);
-    for(int i=1;i<=n;++i){
-        for(int j=1;j<=n;++j){
-            scanf("%d",M[i]+j);
-        }
-    }
-
-    while(m--){
-        char op;
-        int x,y;
-        scanf("\n%c",&op);
-        scanf("%d%d",&x,&y);
-        // printf("%c %d %d\n",op,x,y);
-
-        switch (op){
-        case 'U':
-            UP(x,y);
-            break;
-        case 'D':
-            DOWN(x,y);
-            break;
-        case 'L':
-            LEFT(x,y);
-            break;
-        case 'R':
-            RIGHT(x,y);
-            break;
-        }
-
-        // puts("-------------------");
-        // print();
-        // puts("-------------------");
-
-        if(flag){
-            puts("Yes");
-            print();
-            break;
-        }
-    }
-
-    if(!flag){
-        puts("No");
-        print();
-    }
-
     return 0;
 }
-
-
-/*
-4 100
-0 0 2 4
-4 4 8 4
-8 8 2 4
-2 2 2 2
-U 4 2
-D 1 1
-L 3 3
-*/
