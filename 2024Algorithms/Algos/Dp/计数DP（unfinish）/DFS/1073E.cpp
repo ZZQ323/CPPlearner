@@ -1,89 +1,74 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstring>
 
 using namespace std;
 
+constexpr int mod=998244353;
+using pii=pair<int ,int >;
 using ll=long long ;
-using pii=pair<int,int>;
 
-const int mod=998244353;
-const int Bits=1100;//状态压缩
-const int N=20;
+inline int pls(int a,int b){return (a%mod+b%mod)%mod;}
+inline int pls(int a,int b,int c){return pls(pls(a,b),c);}
+inline int minu(int a,int b){return pls(a+mod,-b);}
+inline int minu(int a,int b,int c){return minu(minu(a,b),c);}
+inline int mul(int a,int b){return (1ll*a%mod*b%mod)%mod;}
+inline int mul(int a,int b,int c){return mul(mul(a,b),c);}
 
-/***
- * 状态压缩只能被用一次，如果想要更好的效果，可以反复使用的那种，必须分开写10个cnt
- *  搞得我调试半天
-*/
+ll l,r;
+int k,ten[30]={1,};
+pii dp[11][30][1200];
 
-int k;
-ll ten[N]={1};
-pair<ll,ll> dp[N][Bits];
-
-pair<ll,ll>
-check(int state){
-    int num=0;
-    for(int i=0;i<10;++i){
-        if( state&(1<<i) ){
-            ++num;
-            if( num>k ){
-                return {0,0};
-            }
-        }
-    }
-    return {1,0};
+inline pii check(int state)
+{
+	int cnt=0;
+	for(int i=0;i<10;++i){
+		if( state&(1<<i) ){
+			++cnt;
+			if(cnt > k)
+				return {0,0};
+		}
+	}
+	return {1,0};
 }
 
-pair<ll,ll> /*第一个返回值是方案数，第二个是总合（儿子）*/ 
-DFS(int pos,int state,bool lead,bool flag,int num[])
+pii DFS(int pos,int state,bool lead,bool flag,const int B,int num[])
 {
-    if( !check(state).first )return {0,0};
-    if( pos<=0 )return check(state);
-    if(!flag and !lead and ~dp[pos][state].first ){
-        return dp[pos][state];
-    }
-    pair<ll,ll> ret={0,0};
-    int end=(flag?num[pos]:9);
-    for(int i=0;i<=end;++i){
-        pair<ll,ll> tmp;
-        if( lead && i==0 ){
-            tmp=DFS(pos-1,state,lead and !i,flag and i==num[pos],num);
-        }else{
-            tmp=DFS(pos-1,state|(1<<i),lead and !i,flag and i==num[pos],num);
-        }
-        ret.first=(ret.first+tmp.first)%mod;
-        //first方案数也容易爆longlong，只要是mod答案，那么所有的因子都应该取模
-        ret.second=(ret.second+(tmp.second+tmp.first%mod*i%mod*ten[pos-1]%mod)%mod)%mod;
-    }
-    if(!flag and !lead){
-        dp[pos][state]=ret;
-    }
-    return ret;
+	if(!pos){return check(state);}
+	if( !check(state).first )return {0,0};
+	if( ~dp[k][pos][state].first  and  !lead  and  !flag )
+		return dp[k][pos][state];
+	pii ret={0,0},tmp;
+	int end=(flag?num[pos]:B-1);
+	for(int i=0;i<=end;++i){
+		if( lead  and  !i) tmp=DFS(pos-1,state ,lead and !i,flag and (i==num[pos]),B,num);
+		else tmp=DFS(pos-1,state|(1<<i),lead and !i,flag and (i==num[pos]),B,num);
+		ret.first=pls(ret.first,tmp.first);
+		ret.second=pls(ret.second,tmp.second,mul(i,ten[pos-1],tmp.first));
+	}
+	if( !lead and !flag )
+		dp[k][pos][state]=ret;
+	return ret;
 }
 
-pair<ll,ll> calc(ll x)
+int num[30];
+int calc(ll x,int B=10)
 {
-    if( x<=0 )return {0,0};
-    int num[N];
-    int len=0;
-    while( x ){
-        num[++len]=x%10;
-        x/=10;
-    }
-    return DFS(len,0,1,1,num);
+	if( !x )return 0;
+	int len=0;
+	while(x){
+		num[++len]=x%B;
+		x/=B;
+	}return DFS(len,0,1,1,B,num).second;
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
-    // memset(dp,0xff,sizeof(dp));
-    for(int i=0;i<N;++i){
-        if( i>=1 )
-            ten[i]=(ten[i-1]*10)%mod;
-        for(int j=0;j<Bits;++j){
-            dp[i][j]={-1,-1};
-        }
-    }
-    ll l,r;
-    while( ~scanf("%lld%lld%d",&l,&r,&k) ){
-        printf("%lld\n",(calc(r).second+mod-calc(l-1).second)%mod );
-    }
-    return 0;
+	// printf("%d",mod<<1);
+	memset(dp,-1,sizeof(dp));
+	for(int i=1;i<30;++i)
+		ten[i]=mul(ten[i-1],10);
+	while( ~scanf("%lld%lld%d",&l,&r,&k) ){
+		printf("%d\n",minu(calc(r),calc(l-1)));
+	}
+	return 0;
 }

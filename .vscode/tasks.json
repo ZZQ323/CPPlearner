@@ -12,10 +12,12 @@
   },
   "tasks": [
     {
-      "label": "gcc single file build",
       "args": [
-        "-std=c++14",
+        "-std=gnu++17",
+        "-Wall",
         "-fexec-charset=GBK",
+        "-static-libgcc",
+        "-static-libstdc++",
         "-g",
         "${file}",
         "-o",
@@ -26,6 +28,7 @@
         "isDefault": true,
         "kind": "build"
       },
+      "label": "gcc single file build",
       "presentation": {
         "clear": true,
         "echo": false,
@@ -38,17 +41,21 @@
       "type": "process"
     },
     {
-      "label": "check ascii",
       "args": [
+        "C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe",
         "-ExecutionPolicy",
         "ByPass",
         "-NoProfile",
         "-File",
-        "C:\\mingw64\\bin\\check-ascii.ps1",
-        "${fileDirname}\\${fileBasenameNoExtension}.exe -C echo {}"
+        "C:\\mingw64\\bin\\pause-console.ps1",
+        {
+          "quoting": "weak",
+          "value": "${fileDirname}\\${fileBasenameNoExtension}.exe"
+        }
       ],
-      "command": "C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "command": "START",
       "dependsOn": "gcc single file build",
+      "label": "run and pause",
       "presentation": {
         "clear": true,
         "echo": false,
@@ -58,7 +65,7 @@
         "showReuseMessage": false
       },
       "problemMatcher": [],
-      "type": "process"
+      "type": "shell"
     }
   ],
   "version": "2.0.0"

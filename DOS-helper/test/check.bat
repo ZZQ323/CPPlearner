@@ -1,6 +1,6 @@
 if exist *.php (
     del * /q
 ) else (
-    echo "此目录下不存在PHP文件"
+    echo "姝ょ洰褰曚笅涓嶅瓨鍦≒HP鏂囦欢"
     @REM exit
 )

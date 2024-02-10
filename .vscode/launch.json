@@ -6,10 +6,10 @@
       "cwd": "${fileDirname}",
       "environment": [],
       "externalConsole": true,
-      "internalConsoleOptions": "openOnSessionStart",
+      "internalConsoleOptions": "neverOpen",
       "miDebuggerPath": "C:\\mingw64\\bin\\gdb.exe",
       "name": "gcc single file debug",
-      "preLaunchTask": "check ascii",
+      "preLaunchTask": "gcc single file build",
       "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
       "request": "launch",
       "setupCommands": [
